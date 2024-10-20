@@ -1,5 +1,5 @@
-import { Box, Heading, Select, Text } from "@chakra-ui/react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Button, Heading, Link, Select, Text } from "@chakra-ui/react";
+import { Link as RouterLink, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 
@@ -42,34 +42,47 @@ function Dashboard() {
 
   return (
     <>
-      <div className="ml-8 pt-20 flex flex-col gap-4">
-        <div className="flex gap-2 items-center">
-          <div className="w-fit">
-            <Select placeholder="London" size={"md"}>
-              {/* change the time based on selected location */}
-              <option value="option1">Los Angeles</option>
-              <option value="option2">Paris</option>
-              <option value="option3">Warsaw</option>
-            </Select>
+      <div className="px-8 py-20 flex flex-col gap-24 w-full">
+        <div className=" flex flex-col gap-2">
+          <div className="flex gap-2 items-center">
+            <div className="w-fit">
+              <Select placeholder="London" size={"sm"}>
+                {/* change the time based on selected location */}
+                <option value="option1">Los Angeles</option>
+                <option value="option2">Paris</option>
+                <option value="option3">Warsaw</option>
+              </Select>
+            </div>
+            <div className="w-96">
+              <Text size={"sm"}>{currentDateTime}</Text>
+            </div>
           </div>
-          <div className="w-96">
-            <Text>{currentDateTime}</Text>
+          <div className="flex items-center gap-2">
+            <Heading as="h1" size="4xl">
+              14°C
+            </Heading>
+            <div className="text-gray-500">
+              <div className="flex gap-1">
+                <label>Wind:</label>
+                <Text>12 km/h</Text>
+              </div>
+              <div className="flex gap-1">
+                <label>Humidity:</label>
+                <Text>79%</Text>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Heading as="h1" size="3xl">
-            14°C
-          </Heading>
-          <div className="text-gray-500">
-            <div className="flex gap-1">
-              <label>Wind:</label>
-              <Text>12 km/h</Text>
-            </div>
-            <div className="flex gap-1">
-              <label>Humidity:</label>
-              <Text>79%</Text>
-            </div>
+        <div className="flex items-center justify-between f-full">
+          <div className="flex items-center gap-2">
+            <label className="text-gray-500 font-bold">FORECAST</label>
+            {currentUser && <Button>Edit Forecast</Button>}
           </div>
+          <Button>
+            <Link as={RouterLink} to="/items">
+              View Weather History
+            </Link>
+          </Button>
         </div>
       </div>
     </>
