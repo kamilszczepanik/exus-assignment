@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from fastapi import APIRouter
@@ -11,11 +12,15 @@ router = APIRouter()
 
 @router.get("/", response_model=WeatherForecastsPublic)
 def get_weather_forecast(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 10
+    session: SessionDep, current_user: CurrentUser, city_code: uuid.UUID | None = None, skip: int = 0, limit: int = 7
 ) -> Any:
     """
     Get weather forecast for next days.
     """
+
+
+    if city_code is None:
+        return WeatherForecastsPublic(data=[], count=0)
 
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(WeatherForecast)
@@ -26,12 +31,12 @@ def get_weather_forecast(
         count_statement = (
             select(func.count())
             .select_from(WeatherForecast)
-            .where(WeatherForecast.owner_id == current_user.id)
+            .where(WeatherForecast.user_id == current_user.id, WeatherForecast.city_code == city_code)
         )
         count = session.exec(count_statement).one()
         statement = (
             select(WeatherForecast)
-            .where(WeatherForecast.owner_id == current_user.id)
+            .where(WeatherForecast.user_id == current_user.id, WeatherForecast.city_code == city_code)
             .offset(skip)
             .limit(limit)
         )
