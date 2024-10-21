@@ -532,6 +532,7 @@ export class ItemsService {
 }
 
 export type TDataGetWeatherForecast = {
+	cityCode?: string | null
 	limit?: number
 	skip?: number
 }
@@ -546,11 +547,12 @@ export class ForecastService {
 	public static getWeatherForecast(
 		data: TDataGetWeatherForecast = {},
 	): CancelablePromise<WeatherForecastsPublic> {
-		const { limit = 10, skip = 0 } = data
+		const { cityCode, limit = 7, skip = 0 } = data
 		return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/forecast/',
 			query: {
+				city_code: cityCode,
 				skip,
 				limit,
 			},
@@ -585,7 +587,7 @@ export type TDataGetWeatherHistory = {
 export class HistoryService {
 	/**
 	 * Get Weather History
-	 * Get weather history.
+	 * Get weather history for the given city_code or return empty if no match.
 	 * @returns WeatherHistorysPublic Successful Response
 	 * @throws ApiError
 	 */
