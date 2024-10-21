@@ -120,7 +120,7 @@ function WeatherHistoryTable({ selectedCityCode }: {selectedCityCode: string | n
 
 function WeatherHistory() {
   const [selectedCityCode, setSelectedCityCode] = useState<string | null>(null);
-  
+
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
