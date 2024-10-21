@@ -1,6 +1,6 @@
-import { Box, Button, Heading, Link, Skeleton, SkeletonText, Text } from "@chakra-ui/react";
+import { Button, Heading, Link, Skeleton, SkeletonText, Text } from "@chakra-ui/react";
 import { Link as RouterLink, createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import CityDropdown from "../../components/Common/CityDropdown";
 import { CityCodeType } from "../../client/core/types";
@@ -23,40 +23,9 @@ function getLatestWeatherQueryOptions({ selectedCityCode }: { selectedCityCode: 
 function Dashboard() {
   const { user: currentUser } = useAuth();
   const [selectedCityCode, setSelectedCityCode] = useState<CityCodeType>(undefined);
-  const [currentDateTime, setCurrentDateTime] = useState<string>("");
-
     const { data: latestWeather, isLoading: isWeatherLoading } = useQuery({
     ...getLatestWeatherQueryOptions({ selectedCityCode }),
   });
-
-
-  // Function to format the current date and time
-  const formatDateTime = (): string => {
-    const date = new Date();
-
-    // Options to format the time and date as desired
-    const options: Intl.DateTimeFormatOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    };
-
-    return date.toLocaleString("en-GB", options);
-  };
-
-  useEffect(() => {
-    setCurrentDateTime(formatDateTime());
-
-    const intervalId = setInterval(() => {
-      setCurrentDateTime(formatDateTime());
-    }, 60000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-  
 
   return (
     <>
@@ -70,7 +39,9 @@ function Dashboard() {
               <CityDropdown onSelectCity={setSelectedCityCode} />
             </div>
             <div className="w-96">
-              <Text size={"sm"}>{currentDateTime}</Text>
+              {isWeatherLoading || !latestWeather ? (
+              <SkeletonText className="w-64" noOfLines={1} />
+            ) : (<Text size={"sm"}>{latestWeather?.data[0]?.date}</Text>)}
             </div>
           </div>
           <>
@@ -94,21 +65,6 @@ function Dashboard() {
               </div>
             )}
           </>
-          {/* <div className="flex items-center gap-2">
-            <Heading as="h1" size="4xl">
-              14°C
-            </Heading>
-            <div className="text-gray-500">
-              <div className="flex gap-1">
-                <label>Wind:</label>
-                <Text>12 km/h</Text>
-              </div>
-              <div className="flex gap-1">
-                <label>Humidity:</label>
-                <Text>79%</Text>
-              </div>
-            </div>
-          </div> */}
         </div>
         <div className="flex flex-col">
           <div className="flex items-center justify-between f-full">
