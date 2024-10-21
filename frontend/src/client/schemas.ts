@@ -171,6 +171,79 @@ export const $Message = {
   },
 } as const
 
+export const $MeteorologicalStation = {
+  properties: {
+    name: {
+      type: "string",
+      isRequired: true,
+      maxLength: 255,
+      minLength: 1,
+    },
+    latitude: {
+      type: "number",
+      isRequired: true,
+    },
+    longitude: {
+      type: "number",
+      isRequired: true,
+    },
+    date_of_installation: {
+      type: "string",
+      isRequired: true,
+      format: "date-time",
+    },
+    code: {
+      type: "string",
+      format: "uuid",
+    },
+  },
+} as const
+
+export const $MeteorologicalStationPublic = {
+  properties: {
+    name: {
+      type: "string",
+      isRequired: true,
+      maxLength: 255,
+      minLength: 1,
+    },
+    latitude: {
+      type: "number",
+      isRequired: true,
+    },
+    longitude: {
+      type: "number",
+      isRequired: true,
+    },
+    date_of_installation: {
+      type: "string",
+      isRequired: true,
+      format: "date-time",
+    },
+    code: {
+      type: "string",
+      isRequired: true,
+      format: "uuid",
+    },
+  },
+} as const
+
+export const $MeteorologicalStationsPublic = {
+  properties: {
+    data: {
+      type: "array",
+      contains: {
+        type: "MeteorologicalStationPublic",
+      },
+      isRequired: true,
+    },
+    count: {
+      type: "number",
+      isRequired: true,
+    },
+  },
+} as const
+
 export const $NewPassword = {
   properties: {
     token: {
@@ -212,6 +285,45 @@ export const $UpdatePassword = {
       isRequired: true,
       maxLength: 40,
       minLength: 8,
+    },
+  },
+} as const
+
+export const $User = {
+  properties: {
+    email: {
+      type: "string",
+      isRequired: true,
+      format: "email",
+      maxLength: 255,
+    },
+    is_active: {
+      type: "boolean",
+      default: true,
+    },
+    is_superuser: {
+      type: "boolean",
+      default: false,
+    },
+    full_name: {
+      type: "any-of",
+      contains: [
+        {
+          type: "string",
+          maxLength: 255,
+        },
+        {
+          type: "null",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+      format: "uuid",
+    },
+    hashed_password: {
+      type: "string",
+      isRequired: true,
     },
   },
 } as const
@@ -438,6 +550,71 @@ export const $ValidationError = {
     },
     type: {
       type: "string",
+      isRequired: true,
+    },
+  },
+} as const
+
+export const $WeatherForecastPublic = {
+  properties: {
+    date: {
+      type: "string",
+      isRequired: true,
+      format: "date-time",
+    },
+    high_temperature: {
+      type: "number",
+      isRequired: true,
+    },
+    low_temperature: {
+      type: "number",
+      isRequired: true,
+    },
+    wind: {
+      type: "string",
+      isRequired: true,
+    },
+    humidity: {
+      type: "number",
+      isRequired: true,
+      maximum: 100,
+      minimum: 0,
+    },
+    id: {
+      type: "string",
+      isRequired: true,
+      format: "uuid",
+    },
+    city: {
+      type: "MeteorologicalStation",
+      isRequired: true,
+    },
+    user: {
+      type: "any-of",
+      contains: [
+        {
+          type: "User",
+        },
+        {
+          type: "null",
+        },
+      ],
+      isRequired: true,
+    },
+  },
+} as const
+
+export const $WeatherForecastsPublic = {
+  properties: {
+    data: {
+      type: "array",
+      contains: {
+        type: "WeatherForecastPublic",
+      },
+      isRequired: true,
+    },
+    count: {
+      type: "number",
       isRequired: true,
     },
   },

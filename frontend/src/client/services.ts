@@ -18,6 +18,8 @@ import type {
   ItemPublic,
   ItemsPublic,
   ItemUpdate,
+  WeatherForecastsPublic,
+  MeteorologicalStationsPublic,
 } from "./models"
 
 export type TDataLoginAccessToken = {
@@ -524,6 +526,51 @@ export class ItemsService {
       errors: {
         422: `Validation Error`,
       },
+    })
+  }
+}
+
+export type TDataGetWeatherForecast = {
+  limit?: number
+  skip?: number
+}
+
+export class ForecastService {
+  /**
+   * Get Weather Forecast
+   * Get weather forecast for next days.
+   * @returns WeatherForecastsPublic Successful Response
+   * @throws ApiError
+   */
+  public static getWeatherForecast(
+    data: TDataGetWeatherForecast = {},
+  ): CancelablePromise<WeatherForecastsPublic> {
+    const { limit = 10, skip = 0 } = data
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/forecast/",
+      query: {
+        skip,
+        limit,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+}
+
+export class StationsService {
+  /**
+   * Get Stations
+   * Get all meteorological stations available.
+   * @returns MeteorologicalStationsPublic Successful Response
+   * @throws ApiError
+   */
+  public static getStations(): CancelablePromise<MeteorologicalStationsPublic> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/stations/",
     })
   }
 }

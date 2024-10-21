@@ -39,11 +39,13 @@ function Dashboard() {
 
     return () => clearInterval(intervalId);
   }, []);
+  
 
   return (
     <>
       <div className="px-8 py-20 flex flex-col gap-24 w-full">
         <div className=" flex flex-col gap-2">
+          <label className="text-gray-500 font-bold">CURRENT WEATHER</label>
           <div className="flex gap-2 items-center">
             <div className="w-fit">
               <Select placeholder="London" size={"sm"}>
@@ -73,16 +75,21 @@ function Dashboard() {
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-between f-full">
-          <div className="flex items-center gap-2">
-            <label className="text-gray-500 font-bold">FORECAST</label>
-            {currentUser && <Button>Edit Forecast</Button>}
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between f-full">
+            <div className="flex items-center gap-2">
+              <label className="text-gray-500 font-bold">FORECAST</label>
+              {currentUser && <Button>Edit Forecast</Button>}
+            </div>
+            <Button>
+              <Link variant={'primary'} as={RouterLink} to="/items">
+                View Weather History
+              </Link>
+            </Button>
           </div>
-          <Button>
-            <Link as={RouterLink} to="/items">
-              View Weather History
-            </Link>
-          </Button>
+          <div>
+
+          </div>
         </div>
       </div>
     </>

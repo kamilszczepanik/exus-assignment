@@ -37,6 +37,27 @@ export type Message = {
   message: string
 }
 
+export type MeteorologicalStation = {
+  name: string
+  latitude: number
+  longitude: number
+  date_of_installation: string
+  code?: string
+}
+
+export type MeteorologicalStationPublic = {
+  name: string
+  latitude: number
+  longitude: number
+  date_of_installation: string
+  code: string
+}
+
+export type MeteorologicalStationsPublic = {
+  data: Array<MeteorologicalStationPublic>
+  count: number
+}
+
 export type NewPassword = {
   token: string
   new_password: string
@@ -50,6 +71,15 @@ export type Token = {
 export type UpdatePassword = {
   current_password: string
   new_password: string
+}
+
+export type User = {
+  email: string
+  is_active?: boolean
+  is_superuser?: boolean
+  full_name?: string | null
+  id?: string
+  hashed_password: string
 }
 
 export type UserCreate = {
@@ -96,4 +126,20 @@ export type ValidationError = {
   loc: Array<string | number>
   msg: string
   type: string
+}
+
+export type WeatherForecastPublic = {
+  date: string
+  high_temperature: number
+  low_temperature: number
+  wind: string
+  humidity: number
+  id: string
+  city: MeteorologicalStation
+  user: User | null
+}
+
+export type WeatherForecastsPublic = {
+  data: Array<WeatherForecastPublic>
+  count: number
 }
