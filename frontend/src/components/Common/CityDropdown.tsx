@@ -25,7 +25,6 @@ export default function CityDropdown({ onSelectCity }: Props) {
   return (
     <Select
       placeholder="Select city"
-      size={"sm"}
       value={selectedCity || ""}
       onChange={(e) => {
         setSelectedCity(e.target.value);

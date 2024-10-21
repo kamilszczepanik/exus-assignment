@@ -2,7 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter
-from sqlmodel import func, select
+from sqlmodel import desc, func, select
 
 from app.api.deps import SessionDep
 from app.models import WeatherHistory, WeatherHistorysPublic
@@ -30,6 +30,7 @@ def get_weather_history(
     statement = (
         select(WeatherHistory)
         .where(WeatherHistory.city_code == city_code)
+        .order_by(desc(WeatherHistory.date))  # Order by date descending
         .offset(skip)
         .limit(limit)
     )

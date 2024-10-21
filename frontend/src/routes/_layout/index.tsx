@@ -44,8 +44,10 @@ function Dashboard() {
   return (
     <>
       <div className="px-8 py-20 flex flex-col gap-24 w-full">
-        <div className=" flex flex-col gap-2">
-          <label className="text-gray-500 font-bold">CURRENT WEATHER</label>
+        <div className="flex flex-col gap-2">
+          <Heading className="text-gray-500 font-bold" size={'sm'} >
+            CURRENT WEATHER
+          </Heading>
           <div className="flex gap-2 items-center">
             <div className="w-fit">
               <Select placeholder="London" size={"sm"}>

@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_layout/history")({
   validateSearch: (search) => weatherHistorySearchSchema.parse(search),
 });
 
-const PER_PAGE = 5;
+const PER_PAGE = 20;
 
 function getItemsQueryOptions({ page, selectedCityCode }: { page: number, selectedCityCode: CityCodeType }) {
   return {
@@ -101,9 +101,6 @@ function WeatherHistoryTable({ selectedCityCode }: {selectedCityCode: CityCodeTy
                   <Td isTruncated maxWidth="150px">
                     {item.wind}
                   </Td>
-                  <Td isTruncated maxWidth="150px">
-                    {item.city.name}
-                  </Td>
                 </Tr>
               ))}
             </Tbody>
@@ -124,12 +121,16 @@ function WeatherHistory() {
   const [selectedCityCode, setSelectedCityCode] = useState<CityCodeType>(undefined);
 
   return (
-    <Container maxW="full">
-      <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        Weather History
-      </Heading>
-      <CityDropdown onSelectCity={setSelectedCityCode} />
+      <div className="px-8 py-20 flex flex-col w-full gap-2">
+        <Heading className="text-gray-500 font-bold" size={'sm'} >
+            WEATHER HISTORY
+          </Heading>
+          <div className="flex gap-2 items-center">
+            <div className="w-fit">
+              <CityDropdown onSelectCity={setSelectedCityCode} />
+            </div>
+          </div>
       <WeatherHistoryTable selectedCityCode={selectedCityCode}/>
-    </Container>
+    </div>
   );
 }
