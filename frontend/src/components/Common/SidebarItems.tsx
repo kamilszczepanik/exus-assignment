@@ -6,7 +6,7 @@ import { FiBriefcase, FiHome, FiSettings, FiUsers } from "react-icons/fi";
 import type { UserPublic } from "../../client";
 
 const items = [
-  { icon: FiHome, title: "Dashboard", path: "/" },
+  { icon: FiHome, title: "Weather Forecast", path: "/" },
   { icon: FiBriefcase, title: "Weather History", path: "/items" },
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ];

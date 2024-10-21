@@ -71,10 +71,10 @@ function ItemsTable() {
         <Table size={{ base: "sm", md: "md" }}>
           <Thead>
             <Tr>
-              <Th>ID</Th>
-              <Th>Title</Th>
-              <Th>Description</Th>
-              <Th>Actions</Th>
+              <Th>Time</Th>
+              <Th>Temperature</Th>
+              <Th>Humidity</Th>
+              <Th>Wind</Th>
             </Tr>
           </Thead>
           {isPending ? (
