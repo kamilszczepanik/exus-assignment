@@ -1,5 +1,4 @@
 import {
-  Container,
   Heading,
   SkeletonText,
   Table,
@@ -18,8 +17,7 @@ import { z } from "zod";
 import { HistoryService } from "../../client/index.ts";
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx";
 import CityDropdown from "../../components/Common/CityDropdown.tsx";
-
-type CityCodeType = string | undefined
+import { CityCodeType } from "../../client/core/types.ts";
 
 const weatherHistorySearchSchema = z.object({
   page: z.number().catch(1),

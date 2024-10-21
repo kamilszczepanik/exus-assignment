@@ -12,3 +12,5 @@ export type TApiResponse<T extends TResult, TData> = Exclude<
 export type TConfig<T extends TResult> = {
   _result?: T
 }
+
+export type CityCodeType = string | undefined
