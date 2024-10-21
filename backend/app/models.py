@@ -58,20 +58,29 @@ class UsersPublic(SQLModel):
     count: int
 
 
-# Shared properties
-class ItemBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
 
 
-class MeteorologicalStation(SQLModel, table=True):
-    code: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class MeteorologicalStationBase(SQLModel):
     name: str = Field(min_length=1, max_length=255)
     latitude: float
     longitude: float
     date_of_installation: datetime
+
+class MeteorologicalStation(MeteorologicalStationBase, table=True):
+    code: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     forecast: list["WeatherForecast"] = Relationship(back_populates="city", cascade_delete=True)
 
+
+class MeteorologicalStationPublic(MeteorologicalStationBase):
+    code: uuid.UUID
+    name: str
+    latitude: float
+    longitude: float
+    date_of_installation: datetime
+
+class MeteorologicalStationsPublic(SQLModel):
+    data: list[MeteorologicalStationPublic]
+    count: int
 
 class WeatherForecast(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -85,6 +94,11 @@ class WeatherForecast(SQLModel, table=True):
     city_code: uuid.UUID = Field(foreign_key="meteorologicalstation.code", nullable=False, ondelete="CASCADE")
     city: MeteorologicalStation | None = Relationship(back_populates="forecast")
 
+
+# Shared properties
+class ItemBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=255)
 
 # Properties to receive on item creation
 class ItemCreate(ItemBase):
