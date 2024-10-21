@@ -2,6 +2,7 @@ import uuid
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
+from datetime import datetime
 
 
 # Shared properties
@@ -44,6 +45,7 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    forecast: list["WeatherForecast"] = Relationship(back_populates="user", cascade_delete=True)
 
 
 # Properties to return via API, id is always required
@@ -60,6 +62,30 @@ class UsersPublic(SQLModel):
 class ItemBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
+
+
+class MeteorologicalStation(SQLModel, table=True):
+    code: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    name: str = Field(min_length=1, max_length=255)
+    latitude: float
+    longitude: float
+    date_of_installation: datetime
+    forecast: list["WeatherForecast"] = Relationship(back_populates="city", cascade_delete=True)
+
+
+class WeatherForecast(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=255)
+    date: datetime
+    high_temperature: int
+    low_temperature: int
+    wind: str
+    humidity: int
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    user: User | None = Relationship(back_populates="forecast")
+    city_code: uuid.UUID = Field(foreign_key="meteorologicalstation.code", nullable=False, ondelete="CASCADE")
+    city: MeteorologicalStation | None = Relationship(back_populates="forecast")
 
 
 # Properties to receive on item creation
