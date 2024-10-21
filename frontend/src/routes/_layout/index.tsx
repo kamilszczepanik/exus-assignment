@@ -5,16 +5,19 @@ import {
 	Skeleton,
 	SkeletonText,
 	Text,
+	Icon,
 } from '@chakra-ui/react'
 import { Link as RouterLink, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import useAuth from '../../hooks/useAuth'
 import CityDropdown from '../../components/Common/CityDropdown'
-
+import { FaWater, FaWind } from 'react-icons/fa'
 import { ForecastService, HistoryService } from '../../client'
 import { useQuery } from '@tanstack/react-query'
 
 type CityCodeType = string | undefined
+
+const FORECAST_DAYS = 7
 
 export const Route = createFileRoute('/_layout/')({
 	component: Dashboard,
@@ -46,7 +49,7 @@ function getWeatherForecastQueryOptions({
 		queryFn: () =>
 			ForecastService.getWeatherForecast({
 				skip: 0,
-				limit: 7,
+				limit: FORECAST_DAYS,
 				cityCode: selectedCityCode,
 			}),
 		queryKey: ['weatherForecast', { selectedCityCode }],
@@ -64,11 +67,11 @@ function formatDate(dateString: Date): string {
 	return date.toLocaleDateString('en-US', options)
 }
 
-function getNext7Days(): Date[] {
+function getNextDays(): Date[] {
 	const days = []
 	const today = new Date()
 
-	for (let i = 0; i < 7; i++) {
+	for (let i = 0; i < FORECAST_DAYS; i++) {
 		const nextDay = new Date(today)
 		nextDay.setDate(today.getDate() + i)
 		days.push(nextDay)
@@ -87,7 +90,7 @@ function Dashboard() {
 	const { data: forecastData, isLoading: isForecastLoading } = useQuery({
 		...getWeatherForecastQueryOptions({ selectedCityCode }),
 	})
-	const next7Days = getNext7Days()
+	const nextDays = getNextDays()
 
 	return (
 		<>
@@ -112,18 +115,20 @@ function Dashboard() {
 						{isWeatherLoading || !latestWeather ? (
 							<Skeleton className="h-16 w-64" />
 						) : (
-							<div className="mb-1 flex items-center gap-2">
+							<div className="mb-1 flex items-center gap-4">
 								<Heading as="h1" size="4xl">
 									{latestWeather.data[0]?.temperature}°C
 								</Heading>
 								<div className="text-gray-500">
-									<div className="flex gap-1">
+									<div className="flex items-center gap-1">
+										<Icon as={FaWind} />
 										<label>Wind:</label>
-										<Text>{latestWeather.data[0]?.wind}</Text>
+										<Text>{latestWeather.data[0].wind}</Text>
 									</div>
-									<div className="flex gap-1">
+									<div className="flex items-center gap-1">
+										<Icon as={FaWater} />
 										<label>Humidity:</label>
-										<Text>{latestWeather.data[0]?.humidity}%</Text>
+										<Text>{latestWeather.data[0].humidity}%</Text>
 									</div>
 								</div>
 							</div>
@@ -133,7 +138,9 @@ function Dashboard() {
 				<div className="flex flex-col">
 					<div className="f-full flex items-center justify-between">
 						<div className="flex items-center gap-2">
-							<label className="font-bold text-gray-500">7-DAY FORECAST</label>
+							<label className="font-bold text-gray-500">
+								{FORECAST_DAYS}-DAY FORECAST
+							</label>
 							{currentUser && <Button>Edit Forecast</Button>}
 						</div>
 						<Button>
@@ -142,12 +149,16 @@ function Dashboard() {
 							</Link>
 						</Button>
 					</div>
-					<div>
-						{isForecastLoading ? (
-							<SkeletonText className="w-full" noOfLines={7} />
+					<div className="py-4">
+						{isWeatherLoading || !latestWeather || isForecastLoading ? (
+							<div className="flex w-full gap-2">
+								{[...Array(FORECAST_DAYS)].map(() => (
+									<Skeleton className="h-36 min-w-32 py-4" />
+								))}
+							</div>
 						) : (
 							<div className="flex gap-8">
-								{next7Days.map((day, index) => {
+								{nextDays.map((day, index) => {
 									const forecast = forecastData?.data.find(
 										f => new Date(f.date).toDateString() === day.toDateString(),
 									)
@@ -155,7 +166,7 @@ function Dashboard() {
 									return (
 										<div
 											key={index}
-											className="flex flex-col items-center gap-4 py-4"
+											className="flex min-w-20 max-w-32 flex-col items-center gap-4"
 										>
 											<Text>{formatDate(day)}</Text>
 											{forecast ? (
@@ -167,12 +178,18 @@ function Dashboard() {
 														</Text>
 													</div>
 													<div className="text-gray-500">
-														<Text>Wind: {forecast.wind}</Text>
-														<Text>Humidity: {forecast.humidity}%</Text>
+														<div className="flex items-center gap-1">
+															<Icon as={FaWind} />
+															<Text>{forecast.wind}</Text>
+														</div>
+														<div className="flex items-center gap-1">
+															<Icon as={FaWater} />
+															<Text>{forecast.humidity}%</Text>
+														</div>
 													</div>
 												</>
 											) : (
-												<div className="text-gray-500">
+												<div className="pt-12 text-center text-gray-500">
 													No forecast available
 												</div>
 											)}
