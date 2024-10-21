@@ -12,11 +12,12 @@ import {
 } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { HistoryService } from "../../client/index.ts";
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx";
+import CityDropdown from "../../components/Common/CityDropdown.tsx";
 
 const weatherHistorySearchSchema = z.object({
   page: z.number().catch(1),
@@ -37,7 +38,7 @@ function getItemsQueryOptions({ page }: { page: number }) {
   };
 }
 
-function WeatherHistoryTable() {
+function WeatherHistoryTable({ selectedCityCode }: {selectedCityCode: string | null}) {
   const queryClient = useQueryClient();
   const { page } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
@@ -118,14 +119,15 @@ function WeatherHistoryTable() {
 }
 
 function WeatherHistory() {
+  const [selectedCityCode, setSelectedCityCode] = useState<string | null>(null);
+  
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
         Weather History
       </Heading>
-
-      {/* <Navbar type={"Item"} addModalAs={AddItem} /> */}
-      <WeatherHistoryTable />
+      <CityDropdown onSelectCity={setSelectedCityCode} />
+      <WeatherHistoryTable selectedCityCode={selectedCityCode}/>
     </Container>
   );
 }
