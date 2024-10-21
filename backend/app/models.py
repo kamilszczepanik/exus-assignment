@@ -58,8 +58,6 @@ class UsersPublic(SQLModel):
     count: int
 
 
-
-
 class MeteorologicalStationBase(SQLModel):
     name: str = Field(min_length=1, max_length=255)
     latitude: float
@@ -73,27 +71,33 @@ class MeteorologicalStation(MeteorologicalStationBase, table=True):
 
 class MeteorologicalStationPublic(MeteorologicalStationBase):
     code: uuid.UUID
-    name: str
-    latitude: float
-    longitude: float
-    date_of_installation: datetime
 
 class MeteorologicalStationsPublic(SQLModel):
     data: list[MeteorologicalStationPublic]
     count: int
 
-class WeatherForecast(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class WeatherForecastBase(SQLModel):
     date: datetime
     high_temperature: int
     low_temperature: int
     wind: str
     humidity: int = Field(ge=0, le=100)
+    
+class WeatherForecast(WeatherForecastBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
     user: User | None = Relationship(back_populates="forecast")
     city_code: uuid.UUID = Field(foreign_key="meteorologicalstation.code", nullable=False, ondelete="CASCADE")
     city: MeteorologicalStation | None = Relationship(back_populates="forecast")
 
+class WeatherForecastPublic(WeatherForecastBase):
+    id: uuid.UUID
+    city: MeteorologicalStation
+    user: User | None
+
+class WeatherForecastsPublic(SQLModel):
+    data: list[WeatherForecastPublic]
+    count: int
 
 # Shared properties
 class ItemBase(SQLModel):

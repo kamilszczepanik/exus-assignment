@@ -1,17 +1,17 @@
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Item, ItemCreate, ItemPublic, WeatherForecast, ItemUpdate, Message
+from app.models import WeatherForecast, WeatherForecastsPublic
 
 router = APIRouter()
 
 
-@router.get("/", response_model=WeatherForecast)
-def read_forecast(
+@router.get("/", response_model=WeatherForecastsPublic)
+def get_weather_forecast(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 10
 ) -> Any:
     """
@@ -22,7 +22,7 @@ def read_forecast(
         count_statement = select(func.count()).select_from(WeatherForecast)
         count = session.exec(count_statement).one()
         statement = select(WeatherForecast).offset(skip).limit(limit)
-        forecast = session.exec(statement).all()
+        forecasts = session.exec(statement).all()
     else:
         count_statement = (
             select(func.count())
@@ -36,9 +36,9 @@ def read_forecast(
             .offset(skip)
             .limit(limit)
         )
-        items = session.exec(statement).all()
+        forecasts = session.exec(statement).all()
 
-    return WeatherForecast(data=items, count=count)
+    return WeatherForecastsPublic(data=forecasts, count=count)
 
 
 # @router.get("/{id}", response_model=ItemPublic)
