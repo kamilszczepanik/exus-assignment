@@ -10,9 +10,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=MeteorologicalStationsPublic)
-def get_stations(
-    session: SessionDep
-) -> Any:
+def get_stations(session: SessionDep) -> Any:
     """
     Get all meteorological stations available.
     """
@@ -23,4 +21,3 @@ def get_stations(
     stations = session.exec(statement).all()
 
     return MeteorologicalStationsPublic(data=stations, count=count)
-

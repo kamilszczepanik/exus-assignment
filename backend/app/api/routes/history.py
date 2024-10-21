@@ -12,7 +12,10 @@ router = APIRouter()
 
 @router.get("/", response_model=WeatherHistorysPublic)
 def get_weather_history(
-    session: SessionDep, city_code: uuid.UUID | None = None, skip: int = 0, limit: int = 10
+    session: SessionDep,
+    city_code: uuid.UUID | None = None,
+    skip: int = 0,
+    limit: int = 10,
 ) -> Any:
     """
     Get weather history for the given city_code or return empty if no match.
@@ -21,7 +24,11 @@ def get_weather_history(
     if city_code is None:
         return WeatherHistorysPublic(data=[], count=0)
 
-    count_statement = select(func.count()).select_from(WeatherHistory).where(WeatherHistory.city_code == city_code)
+    count_statement = (
+        select(func.count())
+        .select_from(WeatherHistory)
+        .where(WeatherHistory.city_code == city_code)
+    )
     count = session.exec(count_statement).one()
 
     if count == 0:
