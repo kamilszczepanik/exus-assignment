@@ -577,6 +577,7 @@ export class StationsService {
 }
 
 export type TDataGetWeatherHistory = {
+  cityCode?: string | null
   limit?: number
   skip?: number
 }
@@ -591,11 +592,12 @@ export class HistoryService {
   public static getWeatherHistory(
     data: TDataGetWeatherHistory = {},
   ): CancelablePromise<WeatherHistorysPublic> {
-    const { limit = 10, skip = 0 } = data
+    const { cityCode, limit = 10, skip = 0 } = data
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/v1/history/",
       query: {
+        city_code: cityCode,
         skip,
         limit,
       },

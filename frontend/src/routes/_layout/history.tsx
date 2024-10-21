@@ -19,6 +19,8 @@ import { HistoryService } from "../../client/index.ts";
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx";
 import CityDropdown from "../../components/Common/CityDropdown.tsx";
 
+type CityCodeType = string | undefined
+
 const weatherHistorySearchSchema = z.object({
   page: z.number().catch(1),
 });
@@ -30,28 +32,28 @@ export const Route = createFileRoute("/_layout/history")({
 
 const PER_PAGE = 5;
 
-function getItemsQueryOptions({ page }: { page: number }) {
+function getItemsQueryOptions({ page, selectedCityCode }: { page: number, selectedCityCode: CityCodeType }) {
   return {
     queryFn: () =>
-      HistoryService.getWeatherHistory({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
-    queryKey: ["history", { page }],
+      HistoryService.getWeatherHistory({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE, cityCode: selectedCityCode }),
+    queryKey: ["history", { page, selectedCityCode }],
   };
 }
 
-function WeatherHistoryTable({ selectedCityCode }: {selectedCityCode: string | null}) {
+function WeatherHistoryTable({ selectedCityCode }: {selectedCityCode: CityCodeType}) {
   const queryClient = useQueryClient();
   const { page } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const setPage = (page: number) =>
     navigate({ search: (prev) => ({ ...prev, page }) });
-
   const {
     data: weatherHistory,
     isPending,
     isPlaceholderData,
   } = useQuery({
-    ...getItemsQueryOptions({ page }),
+    ...getItemsQueryOptions({ page, selectedCityCode }),
     placeholderData: (prevData) => prevData,
+    enabled: !!selectedCityCode,
   });
 
   const hasNextPage = !isPlaceholderData && weatherHistory?.data.length === PER_PAGE;
@@ -59,7 +61,7 @@ function WeatherHistoryTable({ selectedCityCode }: {selectedCityCode: string | n
 
   useEffect(() => {
     if (hasNextPage) {
-      queryClient.prefetchQuery(getItemsQueryOptions({ page: page + 1 }));
+      queryClient.prefetchQuery(getItemsQueryOptions({ page: page + 1, selectedCityCode }));
     }
   }, [page, queryClient, hasNextPage]);
 
@@ -119,7 +121,7 @@ function WeatherHistoryTable({ selectedCityCode }: {selectedCityCode: string | n
 }
 
 function WeatherHistory() {
-  const [selectedCityCode, setSelectedCityCode] = useState<string | null>(null);
+  const [selectedCityCode, setSelectedCityCode] = useState<CityCodeType>(undefined);
 
   return (
     <Container maxW="full">

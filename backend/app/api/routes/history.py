@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from fastapi import APIRouter
@@ -10,15 +11,28 @@ router = APIRouter()
 
 
 @router.get("/", response_model=WeatherHistorysPublic)
-def get_weather_history(session: SessionDep, skip: int = 0, limit: int = 10) -> Any:
+def get_weather_history(
+    session: SessionDep, city_code: uuid.UUID | None = None, skip: int = 0, limit: int = 10
+) -> Any:
     """
-    Get weather history.
+    Get weather history for the given city_code or return empty if no match.
     """
 
-    # todo: weather history by the city
-    count_statement = select(func.count()).select_from(WeatherHistory)
+    if city_code is None:
+        return WeatherHistorysPublic(data=[], count=0)
+
+    count_statement = select(func.count()).select_from(WeatherHistory).where(WeatherHistory.city_code == city_code)
     count = session.exec(count_statement).one()
-    statement = select(WeatherHistory).offset(skip).limit(limit)
+
+    if count == 0:
+        return WeatherHistorysPublic(data=[], count=0)
+
+    statement = (
+        select(WeatherHistory)
+        .where(WeatherHistory.city_code == city_code)
+        .offset(skip)
+        .limit(limit)
+    )
     history = session.exec(statement).all()
 
     return WeatherHistorysPublic(data=history, count=count)
