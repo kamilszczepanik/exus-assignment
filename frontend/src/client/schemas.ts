@@ -619,3 +619,52 @@ export const $WeatherForecastsPublic = {
     },
   },
 } as const
+
+export const $WeatherHistoryPublic = {
+  properties: {
+    date: {
+      type: "string",
+      isRequired: true,
+      format: "date-time",
+    },
+    temperature: {
+      type: "number",
+      isRequired: true,
+    },
+    wind: {
+      type: "string",
+      isRequired: true,
+    },
+    humidity: {
+      type: "number",
+      isRequired: true,
+      maximum: 100,
+      minimum: 0,
+    },
+    id: {
+      type: "string",
+      isRequired: true,
+      format: "uuid",
+    },
+    city: {
+      type: "MeteorologicalStation",
+      isRequired: true,
+    },
+  },
+} as const
+
+export const $WeatherHistorysPublic = {
+  properties: {
+    data: {
+      type: "array",
+      contains: {
+        type: "WeatherHistoryPublic",
+      },
+      isRequired: true,
+    },
+    count: {
+      type: "number",
+      isRequired: true,
+    },
+  },
+} as const

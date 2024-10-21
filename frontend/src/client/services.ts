@@ -20,6 +20,7 @@ import type {
   ItemUpdate,
   WeatherForecastsPublic,
   MeteorologicalStationsPublic,
+  WeatherHistorysPublic,
 } from "./models"
 
 export type TDataLoginAccessToken = {
@@ -571,6 +572,36 @@ export class StationsService {
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/v1/stations/",
+    })
+  }
+}
+
+export type TDataGetWeatherHistory = {
+  limit?: number
+  skip?: number
+}
+
+export class HistoryService {
+  /**
+   * Get Weather History
+   * Get weather history.
+   * @returns WeatherHistorysPublic Successful Response
+   * @throws ApiError
+   */
+  public static getWeatherHistory(
+    data: TDataGetWeatherHistory = {},
+  ): CancelablePromise<WeatherHistorysPublic> {
+    const { limit = 10, skip = 0 } = data
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/history/",
+      query: {
+        skip,
+        limit,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
     })
   }
 }

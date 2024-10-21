@@ -143,3 +143,17 @@ export type WeatherForecastsPublic = {
   data: Array<WeatherForecastPublic>
   count: number
 }
+
+export type WeatherHistoryPublic = {
+  date: string
+  temperature: number
+  wind: string
+  humidity: number
+  id: string
+  city: MeteorologicalStation
+}
+
+export type WeatherHistorysPublic = {
+  data: Array<WeatherHistoryPublic>
+  count: number
+}
