@@ -555,6 +555,39 @@ export const $ValidationError = {
 	},
 } as const
 
+export const $WeatherForecastCreate = {
+	properties: {
+		date: {
+			type: 'string',
+			isRequired: true,
+			format: 'date-time',
+		},
+		high_temperature: {
+			type: 'number',
+			isRequired: true,
+		},
+		low_temperature: {
+			type: 'number',
+			isRequired: true,
+		},
+		wind: {
+			type: 'string',
+			isRequired: true,
+		},
+		humidity: {
+			type: 'number',
+			isRequired: true,
+			maximum: 100,
+			minimum: 0,
+		},
+		city_code: {
+			type: 'string',
+			isRequired: true,
+			format: 'uuid',
+		},
+	},
+} as const
+
 export const $WeatherForecastPublic = {
 	properties: {
 		date: {

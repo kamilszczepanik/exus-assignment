@@ -128,6 +128,15 @@ export type ValidationError = {
 	type: string
 }
 
+export type WeatherForecastCreate = {
+	date: string
+	high_temperature: number
+	low_temperature: number
+	wind: string
+	humidity: number
+	city_code: string
+}
+
 export type WeatherForecastPublic = {
 	date: string
 	high_temperature: number

@@ -18,6 +18,8 @@ import type {
 	ItemPublic,
 	ItemsPublic,
 	ItemUpdate,
+	WeatherForecastCreate,
+	WeatherForecastPublic,
 	WeatherForecastsPublic,
 	MeteorologicalStationsPublic,
 	WeatherHistorysPublic,
@@ -536,11 +538,24 @@ export type TDataGetWeatherForecast = {
 	limit?: number
 	skip?: number
 }
+export type TDataCreateForecast = {
+	requestBody: WeatherForecastCreate
+}
+export type TDataReadForecast = {
+	id: string
+}
+export type TDataUpdateForecast = {
+	id: string
+	requestBody: WeatherForecastCreate
+}
+export type TDataDeleteForecast = {
+	id: string
+}
 
 export class ForecastService {
 	/**
 	 * Get Weather Forecast
-	 * Get weather forecast for next days.
+	 * Get weather forecast for next days in specific city.
 	 * @returns WeatherForecastsPublic Successful Response
 	 * @throws ApiError
 	 */
@@ -555,6 +570,95 @@ export class ForecastService {
 				city_code: cityCode,
 				skip,
 				limit,
+			},
+			errors: {
+				422: `Validation Error`,
+			},
+		})
+	}
+
+	/**
+	 * Create Forecast
+	 * Create new forecast for a day in specific city.
+	 * @returns WeatherForecastPublic Successful Response
+	 * @throws ApiError
+	 */
+	public static createForecast(
+		data: TDataCreateForecast,
+	): CancelablePromise<WeatherForecastPublic> {
+		const { requestBody } = data
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/forecast/',
+			body: requestBody,
+			mediaType: 'application/json',
+			errors: {
+				422: `Validation Error`,
+			},
+		})
+	}
+
+	/**
+	 * Read Forecast
+	 * Get daily weather forecast by ID.
+	 * @returns WeatherForecastPublic Successful Response
+	 * @throws ApiError
+	 */
+	public static readForecast(
+		data: TDataReadForecast,
+	): CancelablePromise<WeatherForecastPublic> {
+		const { id } = data
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/forecast/{id}',
+			path: {
+				id,
+			},
+			errors: {
+				422: `Validation Error`,
+			},
+		})
+	}
+
+	/**
+	 * Update Forecast
+	 * Update a forecast for a day in specific city.
+	 * @returns WeatherForecastPublic Successful Response
+	 * @throws ApiError
+	 */
+	public static updateForecast(
+		data: TDataUpdateForecast,
+	): CancelablePromise<WeatherForecastPublic> {
+		const { id, requestBody } = data
+		return __request(OpenAPI, {
+			method: 'PUT',
+			url: '/api/v1/forecast/{id}',
+			path: {
+				id,
+			},
+			body: requestBody,
+			mediaType: 'application/json',
+			errors: {
+				422: `Validation Error`,
+			},
+		})
+	}
+
+	/**
+	 * Delete Forecast
+	 * Delete a weather forecast for a day in city.
+	 * @returns Message Successful Response
+	 * @throws ApiError
+	 */
+	public static deleteForecast(
+		data: TDataDeleteForecast,
+	): CancelablePromise<Message> {
+		const { id } = data
+		return __request(OpenAPI, {
+			method: 'DELETE',
+			url: '/api/v1/forecast/{id}',
+			path: {
+				id,
 			},
 			errors: {
 				422: `Validation Error`,
