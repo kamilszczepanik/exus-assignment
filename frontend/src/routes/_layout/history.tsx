@@ -148,7 +148,7 @@ function WeatherHistory() {
 			<div className="flex items-center justify-between gap-2">
 				<div className="w-fit">
 					<CityDropdown
-						defaultValue={true}
+						getFirstAvailableCity={true}
 						onSelectCity={setSelectedCityCode}
 					/>
 				</div>

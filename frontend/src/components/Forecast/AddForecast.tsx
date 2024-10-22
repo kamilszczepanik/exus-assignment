@@ -23,15 +23,26 @@ import {
 import useCustomToast from '../../hooks/useCustomToast'
 import { handleError } from '../../utils'
 import CityDropdown from '../Common/CityDropdown'
+import { useEffect } from 'react'
 
 interface Props {
 	isOpen: boolean
 	onClose: () => void
+	selectedDate: Date | null
+	selectedCityCode: string | undefined
 }
 
-const AddForecast = ({ isOpen, onClose }: Props) => {
+const AddForecast = ({
+	isOpen,
+	onClose,
+	selectedDate,
+	selectedCityCode,
+}: Props) => {
 	const queryClient = useQueryClient()
 	const showToast = useCustomToast()
+	const formattedDate = selectedDate
+		? selectedDate.toISOString().split('T')[0]
+		: ''
 	const {
 		register,
 		handleSubmit,
@@ -42,17 +53,16 @@ const AddForecast = ({ isOpen, onClose }: Props) => {
 		mode: 'onBlur',
 		criteriaMode: 'all',
 		defaultValues: {
-			wind: '0km/h',
-			date: '',
-			humidity: 0,
-			low_temperature: 0,
-			high_temperature: 0,
+			date: formattedDate,
+			city_code: selectedCityCode || '',
 		},
 	})
 
 	const mutation = useMutation({
-		mutationFn: (data: WeatherForecastCreate) =>
-			ForecastService.createForecast({ requestBody: data }),
+		mutationFn: (data: WeatherForecastCreate) => {
+			console.log(data)
+			return ForecastService.createForecast({ requestBody: data })
+		},
 		onSuccess: () => {
 			showToast('Success!', 'Weather forecast created successfully.', 'success')
 			reset()
@@ -70,6 +80,10 @@ const AddForecast = ({ isOpen, onClose }: Props) => {
 		mutation.mutate(data)
 	}
 
+	useEffect(() => {
+		setValue('date', formattedDate)
+	}, [selectedDate])
+
 	return (
 		<>
 			<Modal
@@ -86,6 +100,7 @@ const AddForecast = ({ isOpen, onClose }: Props) => {
 						<FormControl isRequired isInvalid={!!errors.city_code}>
 							<FormLabel htmlFor="city_code">City</FormLabel>
 							<CityDropdown
+								defaultCityCode={selectedCityCode}
 								onSelectCity={code => {
 									setValue('city_code', code)
 								}}

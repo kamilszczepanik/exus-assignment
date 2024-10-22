@@ -6,6 +6,7 @@ import {
 	SkeletonText,
 	Text,
 	Icon,
+	useDisclosure,
 } from '@chakra-ui/react'
 import { Link as RouterLink, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -14,8 +15,8 @@ import CityDropdown from '../../components/Common/CityDropdown'
 import { FaEdit, FaPlus, FaTrash, FaWater, FaWind } from 'react-icons/fa'
 import { ForecastService, HistoryService } from '../../client'
 import { useQuery } from '@tanstack/react-query'
-import Navbar from '../../components/Common/Navbar'
 import AddForecast from '../../components/Forecast/AddForecast'
+import Delete from '../../components/Common/DeleteAlert'
 
 type CityCodeType = string | undefined
 
@@ -94,6 +95,9 @@ function Dashboard() {
 	})
 	const nextDays = getNextDays()
 	const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+	const deleteModal = useDisclosure()
+	const [isAddForecastOpen, setIsAddForecastOpen] = useState(false)
+	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
 	return (
 		<>
@@ -105,7 +109,7 @@ function Dashboard() {
 					<div className="flex items-center gap-2">
 						<div className="w-fit">
 							<CityDropdown
-								defaultValue={true}
+								getFirstAvailableCity={true}
 								onSelectCity={setSelectedCityCode}
 							/>
 						</div>
@@ -148,7 +152,15 @@ function Dashboard() {
 								{FORECAST_DAYS}-DAY FORECAST
 							</label>
 							{currentUser && (
-								<Navbar type={'Forecast'} addModalAs={AddForecast} />
+								<Button
+									variant="primary"
+									className="flex gap-1"
+									onClick={() => {
+										setIsAddForecastOpen(true)
+									}}
+								>
+									<Icon as={FaPlus} /> Add Forecast
+								</Button>
 							)}
 						</div>
 						<Button>
@@ -160,8 +172,8 @@ function Dashboard() {
 					<div className="py-4">
 						{isWeatherLoading || !latestWeather || isForecastLoading ? (
 							<div className="flex w-full gap-2">
-								{[...Array(FORECAST_DAYS)].map(() => (
-									<Skeleton className="h-36 min-w-32 py-4" />
+								{[...Array(FORECAST_DAYS)].map(index => (
+									<Skeleton key={index} className="h-36 min-w-32 py-4" />
 								))}
 							</div>
 						) : (
@@ -174,9 +186,9 @@ function Dashboard() {
 									return (
 										<div
 											key={index}
-											className="relative flex h-44 w-32 flex-col items-center gap-4 rounded-lg p-2 hover:bg-gray-800"
-											onMouseEnter={() => setHoveredCard(index)} // Set hover on enter
-											onMouseLeave={() => setHoveredCard(null)} // Remove hover on leave
+											className="relative flex h-44 w-28 flex-col items-center gap-4 rounded-lg p-2 hover:bg-gray-800"
+											onMouseEnter={() => setHoveredCard(index)}
+											onMouseLeave={() => setHoveredCard(null)}
 										>
 											<Text>{formatDate(day)}</Text>
 											{forecast ? (
@@ -188,9 +200,8 @@ function Dashboard() {
 														</Text>
 													</div>
 
-													{/* Conditionally render based on hover state */}
 													{hoveredCard === index ? (
-														<div className="flex flex-col items-center justify-center gap-2">
+														<div className="flex w-28 flex-col items-center justify-center gap-2">
 															<Button
 																size="sm"
 																variant="outline"
@@ -202,20 +213,29 @@ function Dashboard() {
 																size="sm"
 																variant="danger"
 																className="flex w-24 gap-1"
+																onClick={deleteModal.onOpen}
 															>
 																<Icon as={FaTrash} />
 																Delete
 															</Button>
+															<Delete
+																type={'Forecast'}
+																id={forecast.id}
+																isOpen={deleteModal.isOpen}
+																onClose={deleteModal.onClose}
+															/>
 														</div>
 													) : (
-														<div className="text-gray-500">
-															<div className="flex items-center gap-1">
-																<Icon as={FaWind} />
-																<Text>{forecast.wind}</Text>
-															</div>
-															<div className="flex items-center gap-1">
-																<Icon as={FaWater} />
-																<Text>{forecast.humidity}%</Text>
+														<div className="flex w-28 flex-col items-center text-gray-500">
+															<div>
+																<div className="flex items-center gap-1">
+																	<Icon as={FaWind} />
+																	<Text>{forecast.wind}</Text>
+																</div>
+																<div className="flex items-center gap-1">
+																	<Icon as={FaWater} />
+																	<Text>{forecast.humidity}%</Text>
+																</div>
 															</div>
 														</div>
 													)}
@@ -228,6 +248,10 @@ function Dashboard() {
 																size="sm"
 																variant="primary"
 																className="flex w-24 gap-1"
+																onClick={() => {
+																	setSelectedDate(day)
+																	setIsAddForecastOpen(true)
+																}}
 															>
 																<Icon as={FaPlus} /> Add
 															</Button>
@@ -247,6 +271,15 @@ function Dashboard() {
 					</div>
 				</div>
 			</div>
+			<AddForecast
+				isOpen={isAddForecastOpen}
+				onClose={() => {
+					setIsAddForecastOpen(false)
+					setSelectedDate(null)
+				}}
+				selectedDate={selectedDate} // Pass selected date to modal
+				selectedCityCode={selectedCityCode} // Pass selected city to modal
+			/>
 		</>
 	)
 }

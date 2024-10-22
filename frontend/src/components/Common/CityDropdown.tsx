@@ -4,12 +4,14 @@ import { Select } from '@chakra-ui/react'
 import { StationsService } from '../../client'
 
 interface Props {
-	defaultValue?: boolean
+	getFirstAvailableCity?: boolean
+	defaultCityCode?: string
 	onSelectCity: (city: string) => void
 }
 
 export default function CityDropdown({
-	defaultValue = false,
+	getFirstAvailableCity = false,
+	defaultCityCode,
 	onSelectCity,
 }: Props) {
 	const { data: stations, isLoading } = useQuery({
@@ -19,7 +21,10 @@ export default function CityDropdown({
 	const [selectedCity, setSelectedCity] = useState<string | null>(null)
 
 	useEffect(() => {
-		if (defaultValue && stations && stations.data.length > 0) {
+		if (defaultCityCode) {
+			setSelectedCity(defaultCityCode)
+			onSelectCity(defaultCityCode)
+		} else if (getFirstAvailableCity && stations && stations.data.length > 0) {
 			setSelectedCity(stations.data[0].code)
 			onSelectCity(stations.data[0].code)
 		}
