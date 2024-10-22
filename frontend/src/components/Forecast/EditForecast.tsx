@@ -17,8 +17,9 @@ import { type SubmitHandler, useForm } from 'react-hook-form'
 
 import {
 	type ApiError,
-	type WeatherForecastCreate,
 	ForecastService,
+	WeatherForecastCreate,
+	WeatherForecastPublic,
 } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 import { handleError } from '../../utils'
@@ -26,17 +27,19 @@ import CityDropdown from '../Common/CityDropdown'
 import { useEffect } from 'react'
 
 interface Props {
+	forecast: WeatherForecastPublic
 	isOpen: boolean
 	onClose: () => void
-	selectedDate: Date | null
 	selectedCityCode: string | undefined
+	selectedDate: Date | null
 }
 
-const AddForecast = ({
+const EditForecast = ({
+	forecast,
 	isOpen,
 	onClose,
-	selectedDate,
 	selectedCityCode,
+	selectedDate,
 }: Props) => {
 	const queryClient = useQueryClient()
 	const showToast = useCustomToast()
@@ -47,24 +50,24 @@ const AddForecast = ({
 		register,
 		handleSubmit,
 		reset,
-		formState: { errors, isSubmitting },
 		setValue,
+		formState: { isSubmitting, errors, isDirty },
 	} = useForm<WeatherForecastCreate>({
 		mode: 'onBlur',
 		criteriaMode: 'all',
+
 		defaultValues: {
-			date: formattedDate,
+			...forecast,
 			city_code: selectedCityCode || '',
+			date: formattedDate,
 		},
 	})
 
 	const mutation = useMutation({
-		mutationFn: (data: WeatherForecastCreate) => {
-			return ForecastService.createForecast({ requestBody: data })
-		},
+		mutationFn: (data: WeatherForecastCreate) =>
+			ForecastService.updateForecast({ id: forecast.id, requestBody: data }),
 		onSuccess: () => {
-			showToast('Success!', 'Weather forecast created successfully.', 'success')
-			reset()
+			showToast('Success!', 'Forecast updated successfully.', 'success')
 			onClose()
 		},
 		onError: (err: ApiError) => {
@@ -75,8 +78,13 @@ const AddForecast = ({
 		},
 	})
 
-	const onSubmit: SubmitHandler<WeatherForecastCreate> = data => {
+	const onSubmit: SubmitHandler<WeatherForecastCreate> = async data => {
 		mutation.mutate(data)
+	}
+
+	const onCancel = () => {
+		reset()
+		onClose()
 	}
 
 	useEffect(() => {
@@ -93,7 +101,7 @@ const AddForecast = ({
 			>
 				<ModalOverlay />
 				<ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
-					<ModalHeader>Add Forecast</ModalHeader>
+					<ModalHeader>Edit Forecast</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody pb={6} className="flex flex-col">
 						<FormControl isRequired isInvalid={!!errors.city_code}>
@@ -223,10 +231,15 @@ const AddForecast = ({
 						</div>
 					</ModalBody>
 					<ModalFooter gap={3}>
-						<Button variant="primary" type="submit" isLoading={isSubmitting}>
+						<Button
+							variant="primary"
+							type="submit"
+							isLoading={isSubmitting}
+							isDisabled={!isDirty}
+						>
 							Save
 						</Button>
-						<Button onClick={onClose}>Cancel</Button>
+						<Button onClick={onCancel}>Cancel</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
@@ -234,4 +247,4 @@ const AddForecast = ({
 	)
 }
 
-export default AddForecast
+export default EditForecast

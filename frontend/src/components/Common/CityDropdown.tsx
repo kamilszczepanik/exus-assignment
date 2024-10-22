@@ -7,12 +7,14 @@ interface Props {
 	getFirstAvailableCity?: boolean
 	defaultCityCode?: string
 	onSelectCity: (city: string) => void
+	disabled?: boolean
 }
 
 export default function CityDropdown({
 	getFirstAvailableCity = false,
 	defaultCityCode,
 	onSelectCity,
+	disabled = false,
 }: Props) {
 	const { data: stations, isLoading } = useQuery({
 		queryKey: ['stations'],
@@ -38,6 +40,7 @@ export default function CityDropdown({
 				setSelectedCity(e.target.value)
 				onSelectCity(e.target.value)
 			}}
+			disabled={disabled}
 		>
 			{isLoading ? (
 				<option>Loading...</option>

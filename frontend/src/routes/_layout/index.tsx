@@ -10,13 +10,17 @@ import {
 } from '@chakra-ui/react'
 import { Link as RouterLink, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import useAuth from '../../hooks/useAuth'
 import CityDropdown from '../../components/Common/CityDropdown'
 import { FaEdit, FaPlus, FaTrash, FaWater, FaWind } from 'react-icons/fa'
-import { ForecastService, HistoryService } from '../../client'
+import {
+	ForecastService,
+	HistoryService,
+	WeatherForecastPublic,
+} from '../../client'
 import { useQuery } from '@tanstack/react-query'
 import AddForecast from '../../components/Forecast/AddForecast'
 import Delete from '../../components/Common/DeleteAlert'
+import EditForecast from '../../components/Forecast/EditForecast'
 
 type CityCodeType = string | undefined
 
@@ -84,7 +88,6 @@ function getNextDays(): Date[] {
 }
 
 function Dashboard() {
-	const { user: currentUser } = useAuth()
 	const [selectedCityCode, setSelectedCityCode] =
 		useState<CityCodeType>(undefined)
 	const { data: latestWeather, isLoading: isWeatherLoading } = useQuery({
@@ -95,7 +98,8 @@ function Dashboard() {
 	})
 	const nextDays = getNextDays()
 	const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-	const deleteModal = useDisclosure()
+	const editForecastModal = useDisclosure()
+	const deleteForecastModal = useDisclosure()
 	const [isAddForecastOpen, setIsAddForecastOpen] = useState(false)
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
@@ -153,17 +157,6 @@ function Dashboard() {
 							<label className="font-bold text-gray-500">
 								{FORECAST_DAYS}-DAY FORECAST
 							</label>
-							{currentUser && (
-								<Button
-									variant="primary"
-									className="flex gap-1"
-									onClick={() => {
-										setIsAddForecastOpen(true)
-									}}
-								>
-									<Icon as={FaPlus} /> Add Forecast
-								</Button>
-							)}
 						</div>
 						<Button>
 							<Link variant={'primary'} as={RouterLink} to="/history">
@@ -208,14 +201,25 @@ function Dashboard() {
 																size="sm"
 																variant="outline"
 																className="flex w-24 gap-1"
+																onClick={() => {
+																	setSelectedDate(day)
+																	editForecastModal.onOpen()
+																}}
 															>
 																<Icon as={FaEdit} /> Edit
 															</Button>
+															<EditForecast
+																selectedDate={selectedDate}
+																forecast={forecast as WeatherForecastPublic}
+																isOpen={editForecastModal.isOpen}
+																onClose={editForecastModal.onClose}
+																selectedCityCode={selectedCityCode}
+															/>
 															<Button
 																size="sm"
 																variant="danger"
 																className="flex w-24 gap-1"
-																onClick={deleteModal.onOpen}
+																onClick={deleteForecastModal.onOpen}
 															>
 																<Icon as={FaTrash} />
 																Delete
@@ -223,8 +227,8 @@ function Dashboard() {
 															<Delete
 																type={'Forecast'}
 																id={forecast.id}
-																isOpen={deleteModal.isOpen}
-																onClose={deleteModal.onClose}
+																isOpen={deleteForecastModal.isOpen}
+																onClose={deleteForecastModal.onClose}
 															/>
 														</div>
 													) : (
