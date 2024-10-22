@@ -1,5 +1,7 @@
 import {
+	Button,
 	Heading,
+	Link,
 	SkeletonText,
 	Table,
 	TableContainer,
@@ -17,7 +19,9 @@ import { z } from 'zod'
 import { HistoryService } from '../../client/index.ts'
 import { PaginationFooter } from '../../components/Common/PaginationFooter.tsx'
 import CityDropdown from '../../components/Common/CityDropdown.tsx'
-import { CityCodeType } from '../../client/core/types.ts'
+import { Link as RouterLink } from '@tanstack/react-router'
+
+type CityCodeType = string | undefined
 
 const weatherHistorySearchSchema = z.object({
 	page: z.number().catch(1),
@@ -141,10 +145,18 @@ function WeatherHistory() {
 			<Heading className="font-bold text-gray-500" size={'sm'}>
 				WEATHER HISTORY
 			</Heading>
-			<div className="flex items-center gap-2">
+			<div className="flex items-center justify-between gap-2">
 				<div className="w-fit">
-					<CityDropdown onSelectCity={setSelectedCityCode} />
+					<CityDropdown
+						defaultValue={true}
+						onSelectCity={setSelectedCityCode}
+					/>
 				</div>
+				<Button>
+					<Link variant={'primary'} as={RouterLink} to="/">
+						Current Weather
+					</Link>
+				</Button>
 			</div>
 			<WeatherHistoryTable selectedCityCode={selectedCityCode} />
 		</div>

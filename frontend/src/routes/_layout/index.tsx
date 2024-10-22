@@ -54,7 +54,7 @@ function getWeatherForecastQueryOptions({
 				limit: FORECAST_DAYS,
 				cityCode: selectedCityCode,
 			}),
-		queryKey: ['weatherForecast', { selectedCityCode }],
+		queryKey: ['forecast', { selectedCityCode }],
 		enabled: !!selectedCityCode,
 	}
 }
@@ -103,7 +103,10 @@ function Dashboard() {
 					</Heading>
 					<div className="flex items-center gap-2">
 						<div className="w-fit">
-							<CityDropdown onSelectCity={setSelectedCityCode} />
+							<CityDropdown
+								defaultValue={true}
+								onSelectCity={setSelectedCityCode}
+							/>
 						</div>
 						<div className="w-96">
 							{isWeatherLoading || !latestWeather ? (
@@ -143,12 +146,13 @@ function Dashboard() {
 							<label className="font-bold text-gray-500">
 								{FORECAST_DAYS}-DAY FORECAST
 							</label>
-							<Navbar type={'Forecast'} addModalAs={AddForecast} />
-							{currentUser && <Button>Edit Forecast</Button>}
+							{currentUser && (
+								<Navbar type={'Forecast'} addModalAs={AddForecast} />
+							)}
 						</div>
 						<Button>
-							<Link variant={'primary'} as={RouterLink} to="/items">
-								View Weather History
+							<Link variant={'primary'} as={RouterLink} to="/history">
+								Weather History
 							</Link>
 						</Button>
 					</div>
