@@ -7,6 +7,7 @@ from sqlmodel import func, select
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Message,
+    MeteorologicalStation,
     WeatherForecast,
     WeatherForecastCreate,
     WeatherForecastPublic,
@@ -83,14 +84,25 @@ def create_forecast(
     """
     Create new forecast for a day in specific city.
     """
-    existing_forecast = session.exec(
+    city_exists = session.exec(
+        select(MeteorologicalStation).where(
+            MeteorologicalStation.code == forecast_in.city_code
+        )
+    ).first()
+
+    if not city_exists:
+        raise HTTPException(
+            status_code=400, detail="City code not found in Meteorological Station"
+        )
+
+    forecast_exists = session.exec(
         select(WeatherForecast).where(
             WeatherForecast.city_code == forecast_in.city_code,
             func.date(WeatherForecast.date) == forecast_in.date.date(),
         )
     ).first()
 
-    if existing_forecast:
+    if forecast_exists:
         raise HTTPException(
             status_code=400,
             detail="Forecast for this city and day already exists. Instead of creating one, you can update it.",
@@ -116,6 +128,17 @@ def update_forecast(
     """
     Update a forecast for a day in specific city.
     """
+    city_exists = session.exec(
+        select(MeteorologicalStation).where(
+            MeteorologicalStation.code == forecast_in.city_code
+        )
+    ).first()
+
+    if not city_exists:
+        raise HTTPException(
+            status_code=400, detail="City code not found in Meteorological Station"
+        )
+
     forecast = session.get(WeatherForecast, id)
     if not forecast:
         raise HTTPException(
