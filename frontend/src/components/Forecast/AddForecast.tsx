@@ -42,7 +42,7 @@ const AddForecast = ({ isOpen, onClose }: Props) => {
 		mode: 'onBlur',
 		criteriaMode: 'all',
 		defaultValues: {
-			wind: '',
+			wind: '0km/h',
 			date: '',
 			humidity: 0,
 			low_temperature: 0,

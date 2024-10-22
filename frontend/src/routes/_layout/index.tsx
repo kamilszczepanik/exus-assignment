@@ -11,7 +11,7 @@ import { Link as RouterLink, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import useAuth from '../../hooks/useAuth'
 import CityDropdown from '../../components/Common/CityDropdown'
-import { FaWater, FaWind } from 'react-icons/fa'
+import { FaEdit, FaPlus, FaTrash, FaWater, FaWind } from 'react-icons/fa'
 import { ForecastService, HistoryService } from '../../client'
 import { useQuery } from '@tanstack/react-query'
 import Navbar from '../../components/Common/Navbar'
@@ -93,6 +93,7 @@ function Dashboard() {
 		...getWeatherForecastQueryOptions({ selectedCityCode }),
 	})
 	const nextDays = getNextDays()
+	const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
 	return (
 		<>
@@ -164,7 +165,7 @@ function Dashboard() {
 								))}
 							</div>
 						) : (
-							<div className="flex gap-8">
+							<div className="flex gap-4">
 								{nextDays.map((day, index) => {
 									const forecast = forecastData?.data.find(
 										f => new Date(f.date).toDateString() === day.toDateString(),
@@ -173,7 +174,9 @@ function Dashboard() {
 									return (
 										<div
 											key={index}
-											className="flex min-w-20 max-w-32 flex-col items-center gap-4"
+											className="relative flex h-44 w-32 flex-col items-center gap-4 rounded-lg p-2 hover:bg-gray-800"
+											onMouseEnter={() => setHoveredCard(index)} // Set hover on enter
+											onMouseLeave={() => setHoveredCard(null)} // Remove hover on leave
 										>
 											<Text>{formatDate(day)}</Text>
 											{forecast ? (
@@ -184,21 +187,57 @@ function Dashboard() {
 															{forecast.low_temperature}°C
 														</Text>
 													</div>
-													<div className="text-gray-500">
-														<div className="flex items-center gap-1">
-															<Icon as={FaWind} />
-															<Text>{forecast.wind}</Text>
+
+													{/* Conditionally render based on hover state */}
+													{hoveredCard === index ? (
+														<div className="flex flex-col items-center justify-center gap-2">
+															<Button
+																size="sm"
+																variant="outline"
+																className="flex w-24 gap-1"
+															>
+																<Icon as={FaEdit} /> Edit
+															</Button>
+															<Button
+																size="sm"
+																variant="danger"
+																className="flex w-24 gap-1"
+															>
+																<Icon as={FaTrash} />
+																Delete
+															</Button>
 														</div>
-														<div className="flex items-center gap-1">
-															<Icon as={FaWater} />
-															<Text>{forecast.humidity}%</Text>
+													) : (
+														<div className="text-gray-500">
+															<div className="flex items-center gap-1">
+																<Icon as={FaWind} />
+																<Text>{forecast.wind}</Text>
+															</div>
+															<div className="flex items-center gap-1">
+																<Icon as={FaWater} />
+																<Text>{forecast.humidity}%</Text>
+															</div>
 														</div>
-													</div>
+													)}
 												</>
 											) : (
-												<div className="pt-12 text-center text-gray-500">
-													No forecast available
-												</div>
+												<>
+													{hoveredCard === index ? (
+														<div className="flex w-32 flex-col items-center justify-center gap-2 pt-12">
+															<Button
+																size="sm"
+																variant="primary"
+																className="flex w-24 gap-1"
+															>
+																<Icon as={FaPlus} /> Add
+															</Button>
+														</div>
+													) : (
+														<div className="w-32 pt-12 text-center text-gray-500">
+															No forecast available
+														</div>
+													)}
+												</>
 											)}
 										</div>
 									)
