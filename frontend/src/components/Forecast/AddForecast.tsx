@@ -60,7 +60,6 @@ const AddForecast = ({
 
 	const mutation = useMutation({
 		mutationFn: (data: WeatherForecastCreate) => {
-			console.log(data)
 			return ForecastService.createForecast({ requestBody: data })
 		},
 		onSuccess: () => {

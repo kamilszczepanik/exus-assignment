@@ -117,7 +117,9 @@ function Dashboard() {
 							{isWeatherLoading || !latestWeather ? (
 								<SkeletonText className="w-64" noOfLines={1} />
 							) : (
-								<Text size={'sm'}>{latestWeather?.data[0]?.date}</Text>
+								<Text size={'sm'}>
+									{new Date(latestWeather?.data[0]?.date).toUTCString()}
+								</Text>
 							)}
 						</div>
 					</div>
@@ -172,7 +174,7 @@ function Dashboard() {
 					<div className="py-4">
 						{isWeatherLoading || !latestWeather || isForecastLoading ? (
 							<div className="flex w-full gap-2">
-								{[...Array(FORECAST_DAYS)].map(index => (
+								{[...Array(FORECAST_DAYS)].map((_, index) => (
 									<Skeleton key={index} className="h-36 min-w-32 py-4" />
 								))}
 							</div>

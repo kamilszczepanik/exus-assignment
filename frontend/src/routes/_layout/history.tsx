@@ -110,7 +110,7 @@ function WeatherHistoryTable({
 						<Tbody>
 							{weatherHistory?.data.map(item => (
 								<Tr key={item.id} opacity={isPlaceholderData ? 0.5 : 1}>
-									<Td>{item.date}</Td>
+									<Td>{new Date(item.date).toUTCString()}</Td>
 									<Td isTruncated maxWidth="150px">
 										{item.temperature}°C
 									</Td>
