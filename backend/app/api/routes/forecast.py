@@ -68,7 +68,7 @@ def read_forecast(session: SessionDep, current_user: CurrentUser, id: uuid.UUID)
     """
     forecast = session.get(WeatherForecast, id)
     if not forecast:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Weather forecast not found")
     if not current_user.is_superuser and (forecast.user_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
     return forecast
