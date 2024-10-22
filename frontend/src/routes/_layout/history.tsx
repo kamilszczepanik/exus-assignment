@@ -34,7 +34,7 @@ export const Route = createFileRoute('/_layout/history')({
 
 const PER_PAGE = 20
 
-function getItemsQueryOptions({
+function getWeatherHistoryQueryOptions({
 	page,
 	selectedCityCode,
 }: {
@@ -61,13 +61,13 @@ function WeatherHistoryTable({
 	const { page } = Route.useSearch()
 	const navigate = useNavigate({ from: Route.fullPath })
 	const setPage = (page: number) =>
-		navigate({ search: prev => ({ ...prev, page }) })
+		navigate({ search: (prev: any) => ({ ...prev, page }) })
 	const {
 		data: weatherHistory,
 		isPending,
 		isPlaceholderData,
 	} = useQuery({
-		...getItemsQueryOptions({ page, selectedCityCode }),
+		...getWeatherHistoryQueryOptions({ page, selectedCityCode }),
 		placeholderData: prevData => prevData,
 		enabled: !!selectedCityCode,
 	})
@@ -79,7 +79,7 @@ function WeatherHistoryTable({
 	useEffect(() => {
 		if (hasNextPage) {
 			queryClient.prefetchQuery(
-				getItemsQueryOptions({ page: page + 1, selectedCityCode }),
+				getWeatherHistoryQueryOptions({ page: page + 1, selectedCityCode }),
 			)
 		}
 	}, [page, queryClient, hasNextPage])

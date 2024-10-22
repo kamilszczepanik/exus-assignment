@@ -44,7 +44,11 @@ const EditForecast = ({
 	const queryClient = useQueryClient()
 	const showToast = useCustomToast()
 	const formattedDate = selectedDate
-		? selectedDate.toISOString().split('T')[0]
+		? new Date(
+				selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000,
+			)
+				.toISOString()
+				.split('T')[0]
 		: ''
 	const {
 		register,

@@ -20,7 +20,6 @@ import { z } from 'zod'
 
 import { type UserPublic, UsersService } from '../../client'
 import AddUser from '../../components/Admin/AddUser'
-import ActionsMenu from '../../components/Common/ActionsMenu'
 import Navbar from '../../components/Common/Navbar'
 import { PaginationFooter } from '../../components/Common/PaginationFooter.tsx'
 
@@ -124,13 +123,7 @@ function UsersTable() {
 											{user.is_active ? 'Active' : 'Inactive'}
 										</Flex>
 									</Td>
-									<Td>
-										<ActionsMenu
-											type="User"
-											value={user}
-											disabled={currentUser?.id === user.id}
-										/>
-									</Td>
+									<Td></Td>
 								</Tr>
 							))}
 						</Tbody>
