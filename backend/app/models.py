@@ -117,6 +117,10 @@ class WeatherForecastsPublic(SQLModel):
     count: int
 
 
+class WeatherForecastCreate(WeatherForecastBase):
+    city_code: uuid.UUID
+
+
 class WeatherHistoryBase(SQLModel):
     date: datetime
     temperature: int
