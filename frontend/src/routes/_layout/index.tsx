@@ -21,6 +21,7 @@ import { useQuery } from '@tanstack/react-query'
 import AddForecast from '../../components/Forecast/AddForecast'
 import Delete from '../../components/Common/DeleteAlert'
 import EditForecast from '../../components/Forecast/EditForecast'
+import { formatDate, getNextDays } from '../../utils'
 
 type CityCodeType = string | undefined
 
@@ -64,29 +65,6 @@ function getWeatherForecastQueryOptions({
 	}
 }
 
-function formatDate(dateString: Date): string {
-	const date = new Date(dateString)
-
-	const options: Intl.DateTimeFormatOptions = {
-		weekday: 'long',
-	}
-
-	return date.toLocaleDateString('en-US', options)
-}
-
-function getNextDays(): Date[] {
-	const days = []
-	const today = new Date()
-
-	for (let i = 0; i < FORECAST_DAYS; i++) {
-		const nextDay = new Date(today)
-		nextDay.setDate(today.getDate() + i)
-		days.push(nextDay)
-	}
-
-	return days
-}
-
 function Dashboard() {
 	const [selectedCityCode, setSelectedCityCode] =
 		useState<CityCodeType>(undefined)
@@ -96,7 +74,7 @@ function Dashboard() {
 	const { data: forecastData, isLoading: isForecastLoading } = useQuery({
 		...getWeatherForecastQueryOptions({ selectedCityCode }),
 	})
-	const nextDays = getNextDays()
+	const nextDays = getNextDays({ amount: FORECAST_DAYS })
 	const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 	const editForecastModal = useDisclosure()
 	const deleteForecastModal = useDisclosure()
@@ -185,7 +163,7 @@ function Dashboard() {
 											onMouseEnter={() => setHoveredCard(index)}
 											onMouseLeave={() => setHoveredCard(null)}
 										>
-											<Text>{formatDate(day)}</Text>
+											<Text>{formatDate({ date: day })}</Text>
 											{forecast ? (
 												<>
 													<div className="flex gap-1 text-2xl">

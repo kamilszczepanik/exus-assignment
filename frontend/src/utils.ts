@@ -51,3 +51,26 @@ export const handleError = (err: ApiError, showToast: any) => {
 	}
 	showToast('Error', errorMessage, 'error')
 }
+
+export function getNextDays({ amount }: { amount: number }): Date[] {
+	const days = []
+	const today = new Date()
+
+	for (let i = 0; i < amount; i++) {
+		const nextDay = new Date(today)
+		nextDay.setDate(today.getDate() + i)
+		days.push(nextDay)
+	}
+
+	return days
+}
+
+export function formatDate({ date }: { date: Date }): string {
+	const formattedDate = new Date(date)
+
+	const options: Intl.DateTimeFormatOptions = {
+		weekday: 'long',
+	}
+
+	return formattedDate.toLocaleDateString('en-US', options)
+}

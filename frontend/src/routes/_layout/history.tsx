@@ -23,6 +23,8 @@ import { Link as RouterLink } from '@tanstack/react-router'
 
 type CityCodeType = string | undefined
 
+const PER_PAGE = 20
+
 const weatherHistorySearchSchema = z.object({
 	page: z.number().catch(1),
 })
@@ -31,8 +33,6 @@ export const Route = createFileRoute('/_layout/history')({
 	component: WeatherHistory,
 	validateSearch: search => weatherHistorySearchSchema.parse(search),
 })
-
-const PER_PAGE = 20
 
 function getWeatherHistoryQueryOptions({
 	page,
@@ -52,11 +52,9 @@ function getWeatherHistoryQueryOptions({
 	}
 }
 
-function WeatherHistoryTable({
-	selectedCityCode,
-}: {
-	selectedCityCode: CityCodeType
-}) {
+function WeatherHistory() {
+	const [selectedCityCode, setSelectedCityCode] =
+		useState<CityCodeType>(undefined)
 	const queryClient = useQueryClient()
 	const { page } = Route.useSearch()
 	const navigate = useNavigate({ from: Route.fullPath })
@@ -71,7 +69,6 @@ function WeatherHistoryTable({
 		placeholderData: prevData => prevData,
 		enabled: !!selectedCityCode,
 	})
-
 	const hasNextPage =
 		!isPlaceholderData && weatherHistory?.data.length === PER_PAGE
 	const hasPreviousPage = page > 1
@@ -85,7 +82,23 @@ function WeatherHistoryTable({
 	}, [page, queryClient, hasNextPage])
 
 	return (
-		<>
+		<div className="flex w-full flex-col gap-2 px-8 py-20">
+			<Heading className="font-bold text-gray-500" size={'sm'}>
+				WEATHER HISTORY
+			</Heading>
+			<div className="flex items-center justify-between gap-2">
+				<div className="w-fit">
+					<CityDropdown
+						getFirstAvailableCity={true}
+						onSelectCity={setSelectedCityCode}
+					/>
+				</div>
+				<Button>
+					<Link variant={'primary'} as={RouterLink} to="/">
+						Current Weather
+					</Link>
+				</Button>
+			</div>
 			<TableContainer>
 				<Table size={{ base: 'sm', md: 'md' }}>
 					<Thead>
@@ -132,33 +145,6 @@ function WeatherHistoryTable({
 				hasNextPage={hasNextPage}
 				hasPreviousPage={hasPreviousPage}
 			/>
-		</>
-	)
-}
-
-function WeatherHistory() {
-	const [selectedCityCode, setSelectedCityCode] =
-		useState<CityCodeType>(undefined)
-
-	return (
-		<div className="flex w-full flex-col gap-2 px-8 py-20">
-			<Heading className="font-bold text-gray-500" size={'sm'}>
-				WEATHER HISTORY
-			</Heading>
-			<div className="flex items-center justify-between gap-2">
-				<div className="w-fit">
-					<CityDropdown
-						getFirstAvailableCity={true}
-						onSelectCity={setSelectedCityCode}
-					/>
-				</div>
-				<Button>
-					<Link variant={'primary'} as={RouterLink} to="/">
-						Current Weather
-					</Link>
-				</Button>
-			</div>
-			<WeatherHistoryTable selectedCityCode={selectedCityCode} />
 		</div>
 	)
 }
