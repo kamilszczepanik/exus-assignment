@@ -21,7 +21,7 @@ import {
 	ForecastService,
 } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
-import { handleError } from '../../utils'
+import { formatToDateInputValue, handleError } from '../../utils'
 import CityDropdown from '../Common/CityDropdown'
 import { useEffect } from 'react'
 
@@ -40,13 +40,7 @@ const AddForecast = ({
 }: Props) => {
 	const queryClient = useQueryClient()
 	const showToast = useCustomToast()
-	const formattedDate = selectedDate
-		? new Date(
-				selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000,
-			)
-				.toISOString()
-				.split('T')[0]
-		: ''
+	const formattedDate = formatToDateInputValue({ date: selectedDate })
 	const {
 		register,
 		handleSubmit,

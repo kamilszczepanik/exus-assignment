@@ -74,3 +74,15 @@ export function formatDate({ date }: { date: Date }): string {
 
 	return formattedDate.toLocaleDateString('en-US', options)
 }
+
+export const formatToDateInputValue = ({
+	date,
+}: {
+	date: Date | null
+}): string => {
+	if (!date) return ''
+	const adjustedDate = new Date(
+		date.getTime() - date.getTimezoneOffset() * 60000,
+	)
+	return adjustedDate.toISOString().split('T')[0]
+}
