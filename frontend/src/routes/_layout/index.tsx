@@ -14,6 +14,8 @@ import CityDropdown from '../../components/Common/CityDropdown'
 import { FaWater, FaWind } from 'react-icons/fa'
 import { ForecastService, HistoryService } from '../../client'
 import { useQuery } from '@tanstack/react-query'
+import Navbar from '../../components/Common/Navbar'
+import AddForecast from '../../components/Forecast/AddForecast'
 
 type CityCodeType = string | undefined
 
@@ -141,6 +143,7 @@ function Dashboard() {
 							<label className="font-bold text-gray-500">
 								{FORECAST_DAYS}-DAY FORECAST
 							</label>
+							<Navbar type={'Forecast'} addModalAs={AddForecast} />
 							{currentUser && <Button>Edit Forecast</Button>}
 						</div>
 						<Button>
