@@ -32,7 +32,7 @@ export default function CityDropdown({
 
 	return (
 		<Select
-			placeholder="Select city"
+			placeholder={!stations?.data.length ? 'Select city' : ''}
 			value={selectedCity || ''}
 			onChange={e => {
 				setSelectedCity(e.target.value)
