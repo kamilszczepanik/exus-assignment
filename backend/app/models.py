@@ -121,6 +121,11 @@ class WeatherForecastCreate(WeatherForecastBase):
     city_code: uuid.UUID
 
 
+class WeatherForecastUpdate(WeatherForecastBase):
+    id: uuid.UUID
+    city_code: uuid.UUID
+
+
 class WeatherHistoryBase(SQLModel):
     date: datetime
     temperature: int

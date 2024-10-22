@@ -6,6 +6,7 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
+    Message,
     WeatherForecast,
     WeatherForecastCreate,
     WeatherForecastPublic,
@@ -80,9 +81,21 @@ def create_forecast(
     forecast_in: WeatherForecastCreate,
 ) -> Any:
     """
-    Create new forecast for a day.
+    Create new forecast for a day in specific city.
     """
-    # todo: check if forecast for this day for this city already exists
+    existing_forecast = session.exec(
+        select(WeatherForecast).where(
+            WeatherForecast.city_code == forecast_in.city_code,
+            func.date(WeatherForecast.date) == forecast_in.date.date(),
+        )
+    ).first()
+
+    if existing_forecast:
+        raise HTTPException(
+            status_code=400,
+            detail="Forecast for this city and day already exists. Instead of creating one, you can update it.",
+        )
+
     forecast = WeatherForecast.model_validate(
         forecast_in, update={"user_id": current_user.id}
     )
@@ -92,42 +105,45 @@ def create_forecast(
     return forecast
 
 
-# @router.put("/{id}", response_model=WeatherForecastPublic)
-# def update_item(
-#     *,
-#     session: SessionDep,
-#     current_user: CurrentUser,
-#     id: uuid.UUID,
-#     item_in: ItemUpdate,
-# ) -> Any:
-#     """
-#     Update an item.
-#     """
-#     item = session.get(Item, id)
-#     if not item:
-#         raise HTTPException(status_code=404, detail="Item not found")
-#     if not current_user.is_superuser and (item.owner_id != current_user.id):
-#         raise HTTPException(status_code=400, detail="Not enough permissions")
-#     update_dict = item_in.model_dump(exclude_unset=True)
-#     item.sqlmodel_update(update_dict)
-#     session.add(item)
-#     session.commit()
-#     session.refresh(item)
-#     return item
+@router.put("/{id}", response_model=WeatherForecastPublic)
+def update_forecast(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+    forecast_in: WeatherForecastCreate,
+) -> Any:
+    """
+    Update a forecast for a day in specific city.
+    """
+    forecast = session.get(WeatherForecast, id)
+    if not forecast:
+        raise HTTPException(
+            status_code=404,
+            detail="Forecast not found. Instead of updating, you can create a new one.",
+        )
+    if not current_user.is_superuser and (forecast.user_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    update_dict = forecast_in.model_dump(exclude_unset=True)
+    forecast.sqlmodel_update(update_dict)
+    session.add(forecast)
+    session.commit()
+    session.refresh(forecast)
+    return forecast
 
 
-# @router.delete("/{id}")
-# def delete_item(
-#     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
-# ) -> Message:
-#     """
-#     Delete an item.
-#     """
-#     item = session.get(Item, id)
-#     if not item:
-#         raise HTTPException(status_code=404, detail="Item not found")
-#     if not current_user.is_superuser and (item.owner_id != current_user.id):
-#         raise HTTPException(status_code=400, detail="Not enough permissions")
-#     session.delete(item)
-#     session.commit()
-#     return Message(message="Item deleted successfully")
+@router.delete("/{id}")
+def delete_forecast(
+    session: SessionDep, current_user: CurrentUser, id: uuid.UUID
+) -> Message:
+    """
+    Delete a weather forecast for a day in city.
+    """
+    forecast = session.get(WeatherForecast, id)
+    if not forecast:
+        raise HTTPException(status_code=404, detail="Forecast not found")
+    if not current_user.is_superuser and (forecast.user_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    session.delete(forecast)
+    session.commit()
+    return Message(message="Forecast deleted successfully")
