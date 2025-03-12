@@ -1,8 +1,8 @@
 import uuid
+from datetime import datetime
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
-from datetime import datetime
 
 
 # Shared properties
@@ -44,8 +44,9 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
-    forecast: list["WeatherForecast"] = Relationship(back_populates="user", cascade_delete=True)
+    forecast: list["WeatherForecast"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -58,64 +59,94 @@ class UsersPublic(SQLModel):
     count: int
 
 
-# Shared properties
-class ItemBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
-
-
-class MeteorologicalStation(SQLModel, table=True):
-    code: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class MeteorologicalStationBase(SQLModel):
     name: str = Field(min_length=1, max_length=255)
     latitude: float
     longitude: float
     date_of_installation: datetime
-    forecast: list["WeatherForecast"] = Relationship(back_populates="city", cascade_delete=True)
 
 
-class WeatherForecast(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+class MeteorologicalStation(MeteorologicalStationBase, table=True):
+    code: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    forecast: list["WeatherForecast"] = Relationship(
+        back_populates="city", cascade_delete=True
+    )
+    history: list["WeatherHistory"] = Relationship(
+        back_populates="city", cascade_delete=True
+    )
+
+
+class MeteorologicalStationPublic(MeteorologicalStationBase):
+    code: uuid.UUID
+
+
+class MeteorologicalStationsPublic(SQLModel):
+    data: list[MeteorologicalStationPublic]
+    count: int
+
+
+class WeatherForecastBase(SQLModel):
     date: datetime
     high_temperature: int
     low_temperature: int
     wind: str
-    humidity: int
-    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    humidity: int = Field(ge=0, le=100)
+
+
+class WeatherForecast(WeatherForecastBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
     user: User | None = Relationship(back_populates="forecast")
-    city_code: uuid.UUID = Field(foreign_key="meteorologicalstation.code", nullable=False, ondelete="CASCADE")
+    city_code: uuid.UUID = Field(
+        foreign_key="meteorologicalstation.code", nullable=False, ondelete="CASCADE"
+    )
     city: MeteorologicalStation | None = Relationship(back_populates="forecast")
 
 
-# Properties to receive on item creation
-class ItemCreate(ItemBase):
-    pass
-
-
-# Properties to receive on item update
-class ItemUpdate(ItemBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
-
-
-# Database model, database table inferred from class name
-class Item(ItemBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    title: str = Field(max_length=255)
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE"
-    )
-    owner: User | None = Relationship(back_populates="items")
-
-
-# Properties to return via API, id is always required
-class ItemPublic(ItemBase):
+class WeatherForecastPublic(WeatherForecastBase):
     id: uuid.UUID
-    owner_id: uuid.UUID
+    city: MeteorologicalStation
+    user: User | None
 
 
-class ItemsPublic(SQLModel):
-    data: list[ItemPublic]
+class WeatherForecastsPublic(SQLModel):
+    data: list[WeatherForecastPublic]
+    count: int
+
+
+class WeatherForecastCreate(WeatherForecastBase):
+    city_code: uuid.UUID
+
+
+class WeatherForecastUpdate(WeatherForecastBase):
+    id: uuid.UUID
+    city_code: uuid.UUID
+
+
+class WeatherHistoryBase(SQLModel):
+    date: datetime
+    temperature: int
+    wind: str
+    humidity: int = Field(ge=0, le=100)
+
+
+class WeatherHistory(WeatherHistoryBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    city_code: uuid.UUID = Field(
+        foreign_key="meteorologicalstation.code", nullable=False, ondelete="CASCADE"
+    )
+    city: MeteorologicalStation | None = Relationship(back_populates="history")
+
+
+class WeatherHistoryPublic(WeatherHistoryBase):
+    id: uuid.UUID
+    city: MeteorologicalStation
+
+
+class WeatherHistorysPublic(SQLModel):
+    data: list[WeatherHistoryPublic]
     count: int
 
 
@@ -138,3 +169,14 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+
+class SensorData(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    identifier: str
+    sensor: str
+    city: str
+    category: str
+    measurement: float
+    unit: str
+    date: datetime

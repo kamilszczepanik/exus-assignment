@@ -14,10 +14,11 @@ import type {
   UsersPublic,
   UserUpdate,
   UserUpdateMe,
-  ItemCreate,
-  ItemPublic,
-  ItemsPublic,
-  ItemUpdate,
+  WeatherForecastCreate,
+  WeatherForecastPublic,
+  WeatherForecastsPublic,
+  MeteorologicalStationsPublic,
+  WeatherHistorysPublic,
 } from "./models"
 
 export type TDataLoginAccessToken = {
@@ -400,39 +401,41 @@ export class UtilsService {
   }
 }
 
-export type TDataReadItems = {
+export type TDataGetWeatherForecast = {
+  cityCode?: string | null
   limit?: number
   skip?: number
 }
-export type TDataCreateItem = {
-  requestBody: ItemCreate
+export type TDataCreateForecast = {
+  requestBody: WeatherForecastCreate
 }
-export type TDataReadItem = {
+export type TDataReadForecast = {
   id: string
 }
-export type TDataUpdateItem = {
+export type TDataUpdateForecast = {
   id: string
-  requestBody: ItemUpdate
+  requestBody: WeatherForecastCreate
 }
-export type TDataDeleteItem = {
+export type TDataDeleteForecast = {
   id: string
 }
 
-export class ItemsService {
+export class ForecastService {
   /**
-   * Read Items
-   * Retrieve items.
-   * @returns ItemsPublic Successful Response
+   * Get Weather Forecast
+   * Get weather forecast for next days in specific city.
+   * @returns WeatherForecastsPublic Successful Response
    * @throws ApiError
    */
-  public static readItems(
-    data: TDataReadItems = {},
-  ): CancelablePromise<ItemsPublic> {
-    const { limit = 100, skip = 0 } = data
+  public static getWeatherForecast(
+    data: TDataGetWeatherForecast = {},
+  ): CancelablePromise<WeatherForecastsPublic> {
+    const { cityCode, limit = 7, skip = 0 } = data
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/items/",
+      url: "/api/v1/forecast/",
       query: {
+        city_code: cityCode,
         skip,
         limit,
       },
@@ -443,18 +446,18 @@ export class ItemsService {
   }
 
   /**
-   * Create Item
-   * Create new item.
-   * @returns ItemPublic Successful Response
+   * Create Forecast
+   * Create new forecast for a day in specific city.
+   * @returns WeatherForecastPublic Successful Response
    * @throws ApiError
    */
-  public static createItem(
-    data: TDataCreateItem,
-  ): CancelablePromise<ItemPublic> {
+  public static createForecast(
+    data: TDataCreateForecast,
+  ): CancelablePromise<WeatherForecastPublic> {
     const { requestBody } = data
     return __request(OpenAPI, {
       method: "POST",
-      url: "/api/v1/items/",
+      url: "/api/v1/forecast/",
       body: requestBody,
       mediaType: "application/json",
       errors: {
@@ -464,16 +467,18 @@ export class ItemsService {
   }
 
   /**
-   * Read Item
-   * Get item by ID.
-   * @returns ItemPublic Successful Response
+   * Read Forecast
+   * Get daily weather forecast by ID.
+   * @returns WeatherForecastPublic Successful Response
    * @throws ApiError
    */
-  public static readItem(data: TDataReadItem): CancelablePromise<ItemPublic> {
+  public static readForecast(
+    data: TDataReadForecast,
+  ): CancelablePromise<WeatherForecastPublic> {
     const { id } = data
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/items/{id}",
+      url: "/api/v1/forecast/{id}",
       path: {
         id,
       },
@@ -484,18 +489,18 @@ export class ItemsService {
   }
 
   /**
-   * Update Item
-   * Update an item.
-   * @returns ItemPublic Successful Response
+   * Update Forecast
+   * Update a forecast for a day in specific city.
+   * @returns WeatherForecastPublic Successful Response
    * @throws ApiError
    */
-  public static updateItem(
-    data: TDataUpdateItem,
-  ): CancelablePromise<ItemPublic> {
+  public static updateForecast(
+    data: TDataUpdateForecast,
+  ): CancelablePromise<WeatherForecastPublic> {
     const { id, requestBody } = data
     return __request(OpenAPI, {
       method: "PUT",
-      url: "/api/v1/items/{id}",
+      url: "/api/v1/forecast/{id}",
       path: {
         id,
       },
@@ -508,22 +513,85 @@ export class ItemsService {
   }
 
   /**
-   * Delete Item
-   * Delete an item.
+   * Delete Forecast
+   * Delete a weather forecast for a day in city.
    * @returns Message Successful Response
    * @throws ApiError
    */
-  public static deleteItem(data: TDataDeleteItem): CancelablePromise<Message> {
+  public static deleteForecast(
+    data: TDataDeleteForecast,
+  ): CancelablePromise<Message> {
     const { id } = data
     return __request(OpenAPI, {
       method: "DELETE",
-      url: "/api/v1/items/{id}",
+      url: "/api/v1/forecast/{id}",
       path: {
         id,
       },
       errors: {
         422: `Validation Error`,
       },
+    })
+  }
+}
+
+export class StationsService {
+  /**
+   * Get Stations
+   * Get all meteorological stations available.
+   * @returns MeteorologicalStationsPublic Successful Response
+   * @throws ApiError
+   */
+  public static getStations(): CancelablePromise<MeteorologicalStationsPublic> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/stations/",
+    })
+  }
+}
+
+export type TDataGetWeatherHistory = {
+  cityCode?: string | null
+  limit?: number
+  skip?: number
+}
+
+export class HistoryService {
+  /**
+   * Get Weather History
+   * Get weather history for the given city_code or return empty if no match.
+   * @returns WeatherHistorysPublic Successful Response
+   * @throws ApiError
+   */
+  public static getWeatherHistory(
+    data: TDataGetWeatherHistory = {},
+  ): CancelablePromise<WeatherHistorysPublic> {
+    const { cityCode, limit = 10, skip = 0 } = data
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/history/",
+      query: {
+        city_code: cityCode,
+        skip,
+        limit,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+}
+
+export class WsService {
+  /**
+   * Get
+   * @returns unknown Successful Response
+   * @throws ApiError
+   */
+  public static get(): CancelablePromise<unknown> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/ws/",
     })
   }
 }
